@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive JS Skills Manager</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(90deg, #8925FD 0%, #2575FC 100%);
+            --background-gradient: linear-gradient(135deg, #370B56 0%, #0F0C29 50%, #24243E 100%);
+            --card-background: #ffffff;
+            --data-background: #f7f9fc;
+            --text-dark: #2c3e50;
+            --text-light: #8a9bad;
+            --shadow-color: rgba(0, 0, 0, 0.2);
+            --border-color: #e1e5eb;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--background-gradient);
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .data-card {
+            background-color: var(--card-background);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px var(--shadow-color);
+            padding: 40px;
+            width: 100%;
+            max-width: 550px;
+            transform: scale(0.95);
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out forwards;
+            border-top: 5px solid transparent;
+            background-image: linear-gradient(white, white), var(--primary-gradient);
+            background-clip: padding-box, border-box;
+            background-origin: padding-box, border-box;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .card-title {
+            font-size: 2em;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--text-dark);
+            text-align: center;
+        }
+
+        .card-subtitle {
+            font-size: 1em;
+            color: var(--text-light);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .add-skill-form {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            align-items: stretch;
+        }
+
+        .form-group {
+            flex-grow: 1;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px 15px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #8925FD;
+            box-shadow: 0 0 0 3px rgba(137, 37, 253, 0.2);
+        }
+
+        .form-button {
+            padding: 12px 25px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary-gradient);
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .form-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        
+        .data-container {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .data-section h3 {
+            font-weight: 600;
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        #formattedSkills {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-height: 50px;
+        }
+
+        #formattedSkills li {
+            background-color: var(--data-background);
+            border-left: 4px solid #8925FD;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        #formattedSkills li:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="data-card">
+        <h1 class="card-title">Skills Manager</h1>
+        <p class="card-subtitle">Add your skills below and watch the list grow!</p>
+
+        <form class="add-skill-form" id="skillForm">
+            <div class="form-group">
+                <input type="text" id="skillName" class="form-input" placeholder="e.g., Python" required>
+            </div>
+            <div class="form-group">
+                <select id="skillProficiency" class="form-select">
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                    <option value="Expert">Expert</option>
+                </select>
+            </div>
+            <button type="submit" class="form-button">Add Skill</button>
+        </form>
+
+        <div class="data-container">
+            <div class="data-section">
+                <h3>Your Skills</h3>
+                <ul id="formattedSkills"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const skills = [
+            { name: 'HTML5', proficiency: 'Expert' },
+            { name: 'CSS3', proficiency: 'Advanced' }
+        ];
+
+        const skillForm = document.getElementById('skillForm');
+        const skillNameInput = document.getElementById('skillName');
+        const skillProficiencySelect = document.getElementById('skillProficiency');
+        const formattedSkillsElement = document.getElementById('formattedSkills');
+
+        function formatSkills(skillsArray) {
+            return skillsArray.map(skill => `${skill.name} (${skill.proficiency})`);
+        }
+
+        function renderSkills() {
+            formattedSkillsElement.innerHTML = '';
+            const formattedSkillStrings = formatSkills(skills);
+            formattedSkillStrings.forEach(skillString => {
+                const listItem = document.createElement('li');
+                listItem.textContent = skillString;
+                formattedSkillsElement.appendChild(listItem);
+            });
+            
+            console.clear();
+            console.log("--- Current Skills Array (Objects) ---");
+            console.log(skills);
+            console.log("--- Transformed Skills Array (Strings) ---");
+            console.log(formattedSkillStrings);
+        }
+
+        skillForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            const name = skillNameInput.value.trim();
+            const proficiency = skillProficiencySelect.value;
+
+            if (name === '') {
+                alert('Please enter a skill name.');
+                return;
+            }
+
+            skills.push({ name, proficiency });
+            renderSkills();
+
+            skillNameInput.value = '';
+            skillNameInput.focus();
+        });
+
+        document.addEventListener('DOMContentLoaded', renderSkills);
+    </script>
+
+</body>
+</html>
+
