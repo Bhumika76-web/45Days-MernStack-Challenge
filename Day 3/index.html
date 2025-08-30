@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 3: JS Grade Calculator</title>
+    
+    <!-- Google Fonts: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(90deg, #8925FD 0%, #2575FC 100%);
+            --background-gradient: linear-gradient(135deg, #370B56 0%, #0F0C29 50%, #24243E 100%);
+            --card-background: #ffffff;
+            --text-dark: #2c3e50;
+            --text-light: #8a9bad;
+            --shadow-color: rgba(0, 0, 0, 0.2);
+            --success-color: #27ae60; 
+            --warning-color: #f1c40f; 
+            --error-color: #e74c3c;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--background-gradient);
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .grade-calculator {
+            background-color: var(--card-background);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px var(--shadow-color);
+            padding: 40px;
+            text-align: center;
+            width: 100%;
+            max-width: 420px;
+            transform: scale(0.95);
+            animation: fadeIn 0.5s ease-out forwards;
+            border-top: 5px solid transparent;
+            background-image: linear-gradient(white, white), var(--primary-gradient);
+            background-clip: padding-box, border-box;
+            background-origin: padding-box, border-box;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .calculator-title {
+            font-size: 2.2em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+
+        .calculator-subtitle {
+            font-size: 1em;
+            color: var(--text-light);
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        #scoreInput {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5ea;
+            border-radius: 12px;
+            font-size: 1.2em;
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        #scoreInput:focus {
+            outline: none;
+            border-color: #8925FD;
+            box-shadow: 0 0 0 4px rgba(137, 37, 253, 0.2);
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            background-image: var(--primary-gradient);
+            color: white;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .result-area {
+            margin-top: 30px;
+            min-height: 120px; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .result-grade {
+            font-size: 4.5em;
+            font-weight: 700;
+            line-height: 1;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.4s ease, transform 0.4s ease, color 0.4s ease;
+        }
+
+        .result-grade.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Grade-specific coloring */
+        .result-grade[data-grade="A"], .result-grade[data-grade="B"] { color: var(--success-color); }
+        .result-grade[data-grade="C"], .result-grade[data-grade="D"] { color: var(--warning-color); }
+        .result-grade[data-grade="F"] { color: var(--error-color); }
+
+        .result-message {
+            font-size: 1em;
+            color: var(--text-light);
+            margin-top: 5px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="grade-calculator">
+        <h1 class="calculator-title">Grade Calculator</h1>
+        <p class="calculator-subtitle">Enter a score from 0 to 100 to find the letter grade.</p>
+
+        <div class="input-group">
+            <input type="number" id="scoreInput" placeholder="e.g., 85" min="0" max="100">
+        </div>
+
+        <button class="calculate-btn" id="calculateBtn">Calculate Grade</button>
+
+        <div class="result-area">
+            <p id="resultGrade" class="result-grade"></p>
+            <p id="resultMessage" class="result-message"></p>
+        </div>
+    </div>
+
+    <script>
+        const scoreInput = document.getElementById('scoreInput');
+        const calculateBtn = document.getElementById('calculateBtn');
+        const resultGradeDisplay = document.getElementById('resultGrade');
+        const resultMessageDisplay = document.getElementById('resultMessage');
+
+        function calculateGrade(score) {
+            // Validate the input first
+            if (isNaN(score) || score < 0 || score > 100) {
+                return 'Invalid';
+            }
+            
+            // Use if/else if/else statements for conditional logic
+            if (score >= 90) {
+                return 'A';
+            } else if (score >= 80) {
+                return 'B';
+            } else if (score >= 70) {
+                return 'C';
+            } else if (score >= 60) {
+                return 'D';
+            } else {
+                return 'F';
+            }
+        }
+
+        
+        calculateBtn.addEventListener('click', () => {
+           
+            const userScore = parseFloat(scoreInput.value);
+            
+            
+            const grade = calculateGrade(userScore);
+            
+            
+            console.log(`A score of ${userScore} results in a grade of: ${grade}`);
+            
+            
+            updateUI(grade);
+        });
+
+        
+        scoreInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                calculateBtn.click();
+            }
+        });
+
+
+       
+        function updateUI(grade) {
+             
+            resultGradeDisplay.classList.remove('visible');
+            resultGradeDisplay.textContent = '';
+            resultGradeDisplay.removeAttribute('data-grade');
+            resultMessageDisplay.textContent = '';
+            
+            
+            setTimeout(() => {
+                if (grade === 'Invalid') {
+                    resultGradeDisplay.textContent = '✖';
+                    resultGradeDisplay.style.color = 'var(--error-color)';
+                    resultMessageDisplay.textContent = 'Please enter a number between 0 and 100.';
+                } else {
+                    resultGradeDisplay.textContent = grade;
+                    resultGradeDisplay.setAttribute('data-grade', grade); 
+                    resultGradeDisplay.style.color = ''; 
+                    
+                    
+                    const messages = {
+                        'A': 'Excellent work!',
+                        'B': 'Great job!',
+                        'C': 'Good effort.',
+                        'D': 'Keep trying.',
+                        'F': 'Needs improvement.'
+                    };
+                    resultMessageDisplay.textContent = messages[grade];
+                }
+                resultGradeDisplay.classList.add('visible');
+            }, 100);
+        }
+
+        
+        console.log("--- Testing calculateGrade() function ---");
+        console.log(`Score: 95, Grade: ${calculateGrade(95)}`);   // Expected: A
+        console.log(`Score: 82, Grade: ${calculateGrade(82)}`);   // Expected: B
+        console.log(`Score: 70, Grade: ${calculateGrade(70)}`);   // Expected: C
+        console.log(`Score: 61, Grade: ${calculateGrade(61)}`);   // Expected: D
+        console.log(`Score: 45, Grade: ${calculateGrade(45)}`);   // Expected: F
+        console.log(`Score: 101, Grade: ${calculateGrade(101)}`); // Expected: Invalid
+        console.log("-----------------------------------------");
+    </script>
+
+</body>
+</html>
+
+
