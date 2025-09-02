@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Quote Generator</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- New "Sticky Note" Theme --- */
+        :root {
+            --note-yellow: #FFFACD;
+            --text-color: #3D3D3D;
+            --background-color: #D2B48C; /* Tan / Corkboard color */
+            --shadow-color: rgba(0, 0, 0, 0.2);
+            --pin-color: #E74C3C;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Kalam', cursive;
+            background-color: var(--background-color);
+            background-image: radial-gradient(rgba(0,0,0,0.1) 1px, transparent 1px);
+            background-size: 15px 15px; /* Subtle corkboard texture */
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .sticky-note {
+            width: 100%;
+            max-width: 500px;
+            min-height: 300px;
+            background: var(--note-yellow);
+            padding: 40px;
+            box-shadow: 5px 5px 15px var(--shadow-color);
+            transform: rotate(-3deg);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .sticky-note:hover {
+            transform: rotate(0deg) scale(1.02);
+            box-shadow: 10px 10px 25px var(--shadow-color);
+        }
+        
+        /* The "pin" holding the note */
+        .sticky-note::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 20px;
+            background-color: var(--pin-color);
+            border-radius: 50%;
+            box-shadow: inset -2px -2px 5px rgba(0,0,0,0.3);
+        }
+
+        .quote-area {
+            opacity: 1;
+            transition: opacity 0.4s ease-in-out;
+        }
+        
+        .quote-area.loading {
+            opacity: 0;
+        }
+
+        .quote-text {
+            font-size: 2em;
+            line-height: 1.4;
+            margin-top: 20px;
+        }
+
+        .quote-author {
+            margin-top: 25px;
+            font-size: 1.5em;
+            font-weight: 700;
+            display: block;
+        }
+
+        .new-quote-btn {
+            font-family: 'Kalam', cursive;
+            font-size: 1.2em;
+            font-weight: 700;
+            color: var(--text-color);
+            background: transparent;
+            border: none;
+            border-bottom: 2px dashed var(--text-color);
+            padding: 5px;
+            margin-top: 30px;
+            cursor: pointer;
+            align-self: center; /* Center the button */
+            transition: color 0.2s ease;
+        }
+
+        .new-quote-btn:hover {
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sticky-note">
+        <div class="quote-area" id="quoteArea">
+            <blockquote class="quote-text" id="quoteText"></blockquote>
+            <cite class="quote-author" id="quoteAuthor"></cite>
+        </div>
+        <button class="new-quote-btn" id="newQuoteBtn">Scribble a new quote</button>
+    </div>
+
+    <script>
+        const quoteArea = document.getElementById('quoteArea');
+        const quoteTextElement = document.getElementById('quoteText');
+        const quoteAuthorElement = document.getElementById('quoteAuthor');
+        const newQuoteBtn = document.getElementById('newQuoteBtn');
+
+        const apiUrl = 'https://api.quotable.io/random';
+
+        async function getQuote() {
+            quoteArea.classList.add('loading');
+            newQuoteBtn.disabled = true;
+            
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) throw new Error(`Network error`);
+                const data = await response.json();
+                
+                // Wait for the fade out transition to finish
+                setTimeout(() => {
+                    quoteTextElement.textContent = `“${data.content}”`;
+                    quoteAuthorElement.textContent = `— ${data.author || 'Unknown'}`;
+                    quoteArea.classList.remove('loading');
+                    newQuoteBtn.disabled = false;
+                }, 400);
+
+            } catch (error) {
+                console.error("Could not fetch quote:", error);
+                quoteTextElement.textContent = "Oops! Couldn't get a quote. Try again?";
+                quoteAuthorElement.textContent = "";
+                quoteArea.classList.remove('loading');
+                newQuoteBtn.disabled = false;
+            }
+        }
+
+        newQuoteBtn.addEventListener('click', getQuote);
+        
+        // Load initial quote
+        document.addEventListener('DOMContentLoaded', () => {
+             quoteTextElement.textContent = "Getting a random thought...";
+             getQuote();
+        });
+    </script>
+
+</body>
+</html>
+
